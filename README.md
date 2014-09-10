@@ -100,7 +100,7 @@ TextureVideoView.seekTo(int)
 /**
  * Gets the current position of the video. (milliseconds)
  */
-TextureVideoView.getCurrentPosition(int)
+TextureVideoView.getCurrentPosition()
 
 /**
  * Gets the duration of the file.
