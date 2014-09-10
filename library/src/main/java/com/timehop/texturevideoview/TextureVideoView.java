@@ -10,6 +10,7 @@ import android.util.AttributeSet;
 import android.util.Log;
 import android.view.Surface;
 import android.view.TextureView;
+import android.widget.FrameLayout;
 
 import java.io.IOException;
 
@@ -37,7 +38,7 @@ import java.io.IOException;
  *   SOFTWARE.
  */
 
-public class TextureVideoView extends TextureView implements TextureView.SurfaceTextureListener {
+public class TextureVideoView extends FrameLayout implements TextureView.SurfaceTextureListener {
 
     // Indicate if logging is on
     public static final boolean LOG_ON = true;
@@ -57,6 +58,7 @@ public class TextureVideoView extends TextureView implements TextureView.Surface
 
     private ScaleType mScaleType;
     private State mState;
+    private TextureView mTextureView;
 
     public enum ScaleType {
         CENTER_CROP, TOP, BOTTOM
@@ -68,23 +70,32 @@ public class TextureVideoView extends TextureView implements TextureView.Surface
 
     public TextureVideoView(Context context) {
         super(context);
-        initView();
+        if (!isInEditMode()) {
+            initView();
+        }
     }
 
     public TextureVideoView(Context context, AttributeSet attrs) {
         super(context, attrs);
-        initView();
+        if (!isInEditMode()) {
+            initView();
+        }
     }
 
     public TextureVideoView(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
-        initView();
+        if (!isInEditMode()) {
+            initView();
+        }
     }
 
     private void initView() {
         initPlayer();
+        mTextureView = new TextureView(getContext());
+        removeAllViews();
+        addView(mTextureView);
         setScaleType(ScaleType.CENTER_CROP);
-        setSurfaceTextureListener(this);
+        mTextureView.setSurfaceTextureListener(this);
     }
 
     public void setScaleType(ScaleType scaleType) {
@@ -98,15 +109,15 @@ public class TextureVideoView extends TextureView implements TextureView.Surface
         float scaleX = 1.0f;
         float scaleY = 1.0f;
 
-        if (mVideoWidth > viewWidth && mVideoHeight > viewHeight) {
+        if (mVideoWidth >= viewWidth && mVideoHeight >= viewHeight) {
             scaleX = mVideoWidth / viewWidth;
             scaleY = mVideoHeight / viewHeight;
-        } else if (mVideoWidth < viewWidth && mVideoHeight < viewHeight) {
+        } else if (mVideoWidth <= viewWidth && mVideoHeight <= viewHeight) {
             scaleY = viewWidth / mVideoWidth;
             scaleX = viewHeight / mVideoHeight;
-        } else if (viewWidth > mVideoWidth) {
+        } else if (viewWidth >= mVideoWidth) {
             scaleY = (viewWidth / mVideoWidth) / (viewHeight / mVideoHeight);
-        } else if (viewHeight > mVideoHeight) {
+        } else if (viewHeight >= mVideoHeight) {
             scaleX = (viewHeight / mVideoHeight) / (viewWidth / mVideoWidth);
         }
 
@@ -135,8 +146,7 @@ public class TextureVideoView extends TextureView implements TextureView.Surface
 
         Matrix matrix = new Matrix();
         matrix.setScale(scaleX, scaleY, pivotPointX, pivotPointY);
-
-        setTransform(matrix);
+        mTextureView.setTransform(matrix);
     }
 
     private void initPlayer() {
@@ -238,6 +248,13 @@ public class TextureVideoView extends TextureView implements TextureView.Surface
                     if (mListener != null) {
                         mListener.onVideoPrepared();
                     }
+                }
+            });
+
+            mMediaPlayer.setOnErrorListener(new MediaPlayer.OnErrorListener() {
+                @Override
+                public boolean onError(MediaPlayer mediaPlayer, int i, int i2) {
+                    return false;
                 }
             });
 
@@ -365,6 +382,11 @@ public class TextureVideoView extends TextureView implements TextureView.Surface
     public int getDuration() {
         return mMediaPlayer.getDuration();
     }
+
+    /**
+     * @see android.media.MediaPlayer#getCurrentPosition()
+     */
+    public int getCurrentPosition() { return mMediaPlayer.getCurrentPosition(); }
 
     static void log(String message) {
         if (LOG_ON) {

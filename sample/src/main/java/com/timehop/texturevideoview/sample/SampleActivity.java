@@ -2,37 +2,45 @@ package com.timehop.texturevideoview.sample;
 
 import android.app.ActionBar;
 import android.app.Activity;
-import android.content.Context;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
+import android.content.res.AssetFileDescriptor;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.SpinnerAdapter;
-import android.widget.Toast;
 
 import com.timehop.texturevideoview.TextureVideoView;
 
-import me.tabak.texturevideoview.R;
+import java.io.IOException;
 
 public class SampleActivity extends Activity implements View.OnClickListener,
         ActionBar.OnNavigationListener {
 
     // Video file url
-    private static final String FILE_URL = "http://www.w3schools.com/html/mov_bbb.mp4";
+    private static final String VIDEO_PATH = "mov_bbb.mp4";
     private TextureVideoView mTextureVideoView;
+    private AssetFileDescriptor mAssetFileDescriptor;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
 
-        initView();
-        initActionBar();
-
-        if (!isWIFIOn(getBaseContext())) {
-            Toast.makeText(getBaseContext(), "You need internet connection to stream video",
-                    Toast.LENGTH_LONG).show();
+        try {
+            mAssetFileDescriptor = getAssets().openFd(VIDEO_PATH);
+            initView();
+            initActionBar();
+        } catch (IOException e) {
+            new AlertDialog.Builder(this)
+                    .setMessage("Unable to load video from assets")
+                    .setNeutralButton("OK", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+                            finish();
+                        }
+                    })
+                    .show();
         }
     }
 
@@ -79,30 +87,22 @@ public class SampleActivity extends Activity implements View.OnClickListener,
             case indexCropCenter:
                 mTextureVideoView.stop();
                 mTextureVideoView.setScaleType(TextureVideoView.ScaleType.CENTER_CROP);
-                mTextureVideoView.setDataSource(FILE_URL);
+                mTextureVideoView.setDataSource(mAssetFileDescriptor);
                 mTextureVideoView.play();
                 break;
             case indexCropTop:
                 mTextureVideoView.stop();
                 mTextureVideoView.setScaleType(TextureVideoView.ScaleType.TOP);
-                mTextureVideoView.setDataSource(FILE_URL);
+                mTextureVideoView.setDataSource(mAssetFileDescriptor);
                 mTextureVideoView.play();
                 break;
             case indexCropBottom:
                 mTextureVideoView.stop();
                 mTextureVideoView.setScaleType(TextureVideoView.ScaleType.BOTTOM);
-                mTextureVideoView.setDataSource(FILE_URL);
+                mTextureVideoView.setDataSource(mAssetFileDescriptor);
                 mTextureVideoView.play();
                 break;
         }
         return true;
-    }
-
-    public static boolean isWIFIOn(Context context) {
-        ConnectivityManager connMgr =
-                (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
-        NetworkInfo networkInfo = connMgr.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
-
-        return (networkInfo != null && networkInfo.isConnected());
     }
 }
