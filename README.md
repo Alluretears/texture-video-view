@@ -4,6 +4,14 @@
 <img src="sample/src/main/assets/sample2.png" width="240" height="470"/>
 <img src="sample/src/main/assets/sample3.png" width="240" height="470"/>
 
+## Note:
+This library is forked from [Danylyk Dmytro's video-crop](https://github.com/dmytrodanylyk/video-crop). Here is what we changed:
+
+- Wrap TextureView in a FrameLayout to avoid rendering glitches when scaling the matrix.
+- Add method for getCurrentPosition()
+- Add `!isInEditMode()` checks so IDEs can render a preview.
+- Migrate to gradle / distribute on Maven Central
+
 ## Description
 
 [`TextureVideoView`](/library/src/com/dd/crop/TextureVideoView.java) is custom view based on android [`TextureView`](http://developer.android.com/reference/android/view/TextureView.html) which gives you ability easily  play and crop video. It's very similar to [`ImageView#setScaleType`](http://developer.android.com/reference/android/widget/ImageView.html#setScaleType(android.widget.ImageView.ScaleType))
@@ -16,13 +24,13 @@ Crop modes:
 
 ## Usage
 
-Include library module to your project or copy [`TextureVideoView`](/library/src/com/dd/crop/TextureVideoView.java) class to your package.
+Include library module to your project or copy [`TextureVideoView`](/library/src/com/timehop/texturevideoview/TextureVideoView.java) class to your package.
 
 
 ```xml
-<com.dd.crop.TextureVideoView
+<com.timehop.texturevideoview.TextureVideoView
         android:id="@+id/cropTextureView"
-        android:layout_width="fill_parent"
+        android:layout_width="match_parent"
         android:layout_height="100dp"/>
 ```
 
@@ -90,6 +98,11 @@ TextureVideoView.setLooping(boolean)
 TextureVideoView.seekTo(int)
 
 /**
+ * Gets the current position of the video. (milliseconds)
+ */
+TextureVideoView.getCurrentPosition(int)
+
+/**
  * Gets the duration of the file.
  */
 TextureVideoView.getDuration()
@@ -106,6 +119,7 @@ TextureVideoView.setListener(MediaPlayerListener)
 The MIT License (MIT)
 
 Copyright (c) 2014 Danylyk Dmytro
+Copyright (c) 2014 Jacob Tabak
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
