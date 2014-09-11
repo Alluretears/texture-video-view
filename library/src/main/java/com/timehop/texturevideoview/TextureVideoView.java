@@ -1,4 +1,4 @@
-package com.timehop.ui.views;
+package com.timehop.texturevideoview;
 
 import android.content.Context;
 import android.content.res.AssetFileDescriptor;
