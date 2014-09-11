@@ -1,4 +1,4 @@
-package com.timehop.texturevideoview;
+package com.timehop.ui.views;
 
 import android.content.Context;
 import android.content.res.AssetFileDescriptor;
@@ -161,6 +161,13 @@ public class TextureVideoView extends FrameLayout implements TextureView.Surface
         mState = State.UNINITIALIZED;
     }
 
+    public boolean isPlaying() {
+        if (mMediaPlayer != null) {
+            return mMediaPlayer.isPlaying();
+        }
+        return false;
+    }
+
     /**
      * @see android.media.MediaPlayer#setDataSource(String)
      */
@@ -232,8 +239,6 @@ public class TextureVideoView extends FrameLayout implements TextureView.Surface
                 }
             });
 
-            // don't forget to call MediaPlayer.prepareAsync() method when you use constructor for
-            // creating MediaPlayer
             mMediaPlayer.prepareAsync();
 
             // Play video when the media source is ready for playback.
@@ -275,6 +280,10 @@ public class TextureVideoView extends FrameLayout implements TextureView.Surface
      * If video is stopped or ended and play() method was called, video will start over.
      */
     public void play() {
+        play(0);
+    }
+
+    public void play(int startPosition) {
         if (!mIsDataSourceSet) {
             log("play() was called but data source was not set.");
             return;
@@ -304,15 +313,8 @@ public class TextureVideoView extends FrameLayout implements TextureView.Surface
             return;
         }
 
-        if (mState == State.END || mState == State.STOP) {
-            log("play() was called but video already ended, starting over.");
-            mState = State.PLAY;
-            mMediaPlayer.seekTo(0);
-            mMediaPlayer.start();
-            return;
-        }
-
         mState = State.PLAY;
+        mMediaPlayer.seekTo(startPosition);
         mMediaPlayer.start();
     }
 
